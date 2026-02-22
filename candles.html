@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Make a Wish Appii 🎂</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Dancing+Script:wght@400;700&family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#ffeaf4; /* SAME background */
+    overflow:hidden;
+    font-family:"Montserrat", sans-serif;
+}
+
+/* 💗 Floating Hearts Background */
+.hearts-wrapper{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:0;
+}
+
+.heart{
+    position:absolute;
+    bottom:-40px;
+    width:18px;
+    height:18px;
+    background:#e91e63;
+    transform:rotate(45deg);
+    opacity:0.4;
+    animation:floatUp linear infinite;
+}
+
+.heart::before,
+.heart::after{
+    content:"";
+    position:absolute;
+    width:18px;
+    height:18px;
+    background:#e91e63;
+    border-radius:50%;
+}
+
+.heart::before{ top:-9px; left:0; }
+.heart::after{ left:-9px; top:0; }
+
+@keyframes floatUp{
+    0%{ transform:translateY(0) rotate(45deg); opacity:0;}
+    10%{ opacity:0.4;}
+    100%{ transform:translateY(-100vh) rotate(45deg); opacity:0;}
+}
+
+/* 🎂 Cake */
+.cake{
+    position:relative;
+    width:320px;
+    height:300px;
+    z-index:2;
+}
+
+.layer1{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:120px;
+    background:linear-gradient(#4b2500,#5e2f00);
+    border-radius:25px;
+}
+.layer2{
+    position:absolute;
+    bottom:100px;
+    left:30px;
+    width:260px;
+    height:90px;
+    background:linear-gradient(#5c2e00,#703800);
+    border-radius:20px;
+}
+.layer3{
+    position:absolute;
+    bottom:170px;
+    left:70px;
+    width:180px;
+    height:70px;
+    background:linear-gradient(#6e3a00,#854400);
+    border-radius:15px;
+}
+.icing{
+    position:absolute;
+    bottom:225px;
+    left:70px;
+    width:180px;
+    height:35px;
+    background:linear-gradient(#ff9ac4,#ff6b9d);
+    border-radius:40px 40px 20px 20px;
+}
+
+/* Candles */
+.candle{
+    position:absolute;
+    width:12px;
+    height:45px;
+    background:white;
+    border-radius:4px;
+    bottom:225px;
+}
+
+.c1{ left:115px; }
+.c2{ left:155px; }
+.c3{ left:195px; }
+
+.flame{
+    position:absolute;
+    top:-25px;
+    left:50%;
+    transform:translateX(-50%);
+    width:16px;
+    height:26px;
+    background:radial-gradient(circle at 30% 30%,#ffd700,#ff4500);
+    border-radius:50%;
+    box-shadow:0 0 20px gold;
+    animation:flicker 1s infinite alternate;
+    opacity:0;
+}
+
+@keyframes flicker{
+    from{transform:translateX(-50%) scale(1);}
+    to{transform:translateX(-50%) scale(1.2);}
+}
+
+/* Smoke */
+.smoke{
+    position:absolute;
+    top:-25px;
+    left:50%;
+    width:25px;
+    height:25px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(220,220,220,0.8),rgba(200,200,200,0.4),transparent);
+    opacity:0;
+}
+
+@keyframes smokeRise{
+    0%{transform:translate(-50%,0) scale(1);opacity:0.8;}
+    100%{transform:translate(-50%,-150px) scale(3);opacity:0;}
+}
+
+/* Popup */
+.message{
+    position:fixed;
+    top:40px;
+    left:50%;
+    transform:translateX(-50%);
+    background:white;
+    padding:18px 35px;
+    border-radius:20px;
+    font-size:20px;
+    font-weight:600;
+    color:#c41e3a;
+    opacity:0;
+    scale:0.5;
+    z-index:3;
+}
+
+.message.show{
+    animation:pop 0.6s forwards;
+}
+
+@keyframes pop{
+    to{opacity:1; scale:1;}
+}
+
+/* Confetti */
+.confetti{
+    position:absolute;
+    width:10px;
+    height:10px;
+    top:-10px;
+    animation:fall linear forwards;
+    z-index:1;
+}
+
+@keyframes fall{
+    to{
+        transform:translateY(100vh) rotate(720deg);
+        opacity:0;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="hearts-wrapper" id="hearts-wrapper"></div>
+
+<div class="cake">
+    <div class="layer1"></div>
+    <div class="layer2"></div>
+    <div class="layer3"></div>
+    <div class="icing"></div>
+
+    <div class="candle c1"><div class="flame"></div><div class="smoke"></div></div>
+    <div class="candle c2"><div class="flame"></div><div class="smoke"></div></div>
+    <div class="candle c3"><div class="flame"></div><div class="smoke"></div></div>
+</div>
+
+<div class="message" id="msg">
+🎉 Make a Wish Appii and blow the candles 🎂
+</div>
+
+<audio id="song" src="https://www2.cs.uic.edu/~i101/SoundFiles/HappyBirthday.wav"></audio>
+
+<script>
+/* 💗 Create Floating Hearts */
+function createHearts(){
+    const wrapper=document.getElementById("hearts-wrapper");
+    for(let i=0;i<20;i++){
+        const heart=document.createElement("div");
+        heart.classList.add("heart");
+        heart.style.left=Math.random()*100+"vw";
+        heart.style.animationDuration=(6+Math.random()*4)+"s";
+        heart.style.animationDelay=Math.random()*6+"s";
+        wrapper.appendChild(heart);
+    }
+}
+createHearts();
+
+/* Auto light candles */
+window.onload=()=>{
+    setTimeout(()=>{
+        document.querySelectorAll(".flame").forEach(f=>f.style.opacity=1);
+        document.getElementById("msg").classList.add("show");
+        startMic();
+    },1500);
+};
+
+let blown=false;
+
+async function startMic(){
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const audioContext=new (window.AudioContext||window.webkitAudioContext)();
+    const mic=audioContext.createMediaStreamSource(stream);
+    const analyser=audioContext.createAnalyser();
+    analyser.fftSize=256;
+    mic.connect(analyser);
+    const data=new Uint8Array(analyser.frequencyBinCount);
+
+    function detect(){
+        if(blown) return;
+        analyser.getByteFrequencyData(data);
+        let volume=data.reduce((a,b)=>a+b)/data.length;
+        if(volume>60){
+            blown=true;
+            blowCandles();
+        }
+        requestAnimationFrame(detect);
+    }
+    detect();
+}
+
+function blowCandles(){
+    // Hide flames
+    document.querySelectorAll(".flame").forEach(f=>f.style.opacity=0);
+
+    // Smoke effect
+    document.querySelectorAll(".smoke").forEach(s=>{
+        s.style.opacity=1;
+        s.style.animation="smokeRise 3s forwards";
+    });
+
+    // Celebration
+    launchConfetti();
+    document.getElementById("song").play();
+
+    // Change message after 1 second
+    setTimeout(()=>{
+        const msg = document.getElementById("msg");
+        msg.innerHTML = "💖 I Love U Saggu ❤️💞💕💘";
+        msg.style.color = "#e91e63";
+        msg.style.fontSize = "28px";
+    },1000);
+}
+
+function launchConfetti(){
+    for(let i=0;i<120;i++){
+        const c=document.createElement("div");
+        c.classList.add("confetti");
+        c.style.left=Math.random()*100+"vw";
+        c.style.background=`hsl(${Math.random()*360},100%,50%)`;
+        c.style.animationDuration=(Math.random()*3+2)+"s";
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(),5000);
+    }
+}
+</script>
+
+</body>
+</html>
