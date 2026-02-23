@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday Appiiii 💖</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Dancing+Script:wght@400;700&family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffeaf4;
+      color: #333;
+      overflow: hidden;
+      position: relative;
+      font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .hearts-wrapper {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -40px;
+      width: 18px;
+      height: 18px;
+      background-color: #e91e63;
+      transform: rotate(45deg);
+      opacity: 0.4;
+      animation: floatUp linear infinite;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background-color: #e91e63;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -9px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: -9px;
+      top: 0;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(45deg);
+        opacity: 0.0;
+      }
+      10% {
+        opacity: 0.4;
+      }
+      70% {
+        opacity: 0.4;
+      }
+      100% {
+        transform: translateY(-100vh) rotate(45deg);
+        opacity: 0;
+      }
+    }
+
+    .container {
+      position: relative;
+      max-width: 900px;
+      width: 95%;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px 30px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      z-index: 2;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      cursor: pointer; /* Shows hand cursor on hover */
+      transition: transform 0.2s ease; /* Smooth hover effect */
+    }
+
+    .container:hover {
+      transform: scale(1.02); /* Slight zoom on hover */
+    }
+
+    h1 {
+      font-family: "Dancing Script", cursive;
+      font-size: clamp(2.8rem, 6vw, 4rem);
+      letter-spacing: 0.01em;
+      color: #c41e3a;
+      font-weight: 700;
+      text-shadow: 0 4px 16px rgba(196, 30, 58, 0.3);
+      line-height: 1.1;
+      white-space: nowrap;
+      margin: 0;
+      z-index: 3;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .photo-text {
+      font-family: "Amatic SC", cursive;
+      font-size: clamp(1.2rem, 3vw, 1.6rem);
+      line-height: 1.5;
+      color: #555;
+      font-weight: 700;
+      padding: 20px;
+      border-radius: 16px;
+      border: 2px dashed #ff9a9e;
+      margin: 0;
+      z-index: 3;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts-wrapper" id="hearts-wrapper"></div>
+
+  <div class="container">
+    <h1>Happy Birthday Appiiii ❤️❤️</h1>
+    <div class="photo-text">
+      Today my world got brighter because you were born 💖✨💫💫
+    </div>
+  </div>
+
+  <script>
+    function createHearts() {
+      const wrapper = document.getElementById("hearts-wrapper");
+      const total = 20;
+      for (let i = 0; i < total; i++) {
+        const heart = document.createElement("div");
+        heart.classList.add("heart");
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.animationDuration = (6 + Math.random() * 4) + "s";
+        heart.style.animationDelay = Math.random() * 6 + "s";
+        heart.style.transform = "scale(" + (0.5 + Math.random() * 0.5) + ") rotate(45deg)";
+        wrapper.appendChild(heart);
+      }
+    }
+    createHearts();
+
+    // Click anywhere on white container to go to candles.html
+    document.querySelector('.container').addEventListener('click', function() {
+      window.location.href = 'candles.html';
+    });
+  </script>
+</body>
+</html>
