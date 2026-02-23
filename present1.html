@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Puzzle 💕</title>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family:'Georgia', serif;
+  background: linear-gradient(135deg,#ff9a9e,#fecfef,#ffecd2);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:15px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ❤️ Hearts floating animation background (from Code 2) */
+.hearts {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.floating-heart {
+  position: absolute;
+  color: #e91e63;
+  opacity: 0;
+  animation: floatUp 5s linear infinite;
+  will-change: transform, opacity;
+  user-select: none;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+}
+
+.container {
+  max-width:420px;
+  width:95%;
+  background:white;
+  border-radius:18px;
+  box-shadow:0 15px 45px rgba(0,0,0,0.25);
+  padding:25px;
+  text-align:center;
+  position:relative;
+  z-index:1;
+}
+
+h1 { color:#e91e63; margin-bottom:10px; }
+.subtitle { color:#666; margin-bottom:20px; }
+
+.upload-area {
+  border:3px dashed #e91e63;
+  border-radius:15px;
+  padding:35px 20px;
+  background:#fff5f7;
+  cursor:pointer;
+}
+
+.puzzle-container { display:none; margin-top:20px; }
+
+.puzzle-board {
+  position:relative;
+  width:318px;
+  height:318px;
+  margin:0 auto;
+  background:#f0f0f0;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.puzzle-piece {
+  position:absolute;
+  width:106px;
+  height:106px;
+  background-size:318px 318px;
+  border:2px solid #fff;
+  cursor:grab;
+}
+
+/* ✅ Completed puzzle message */
+.complete-overlay {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:85%;
+  padding:20px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#ff9a9e,#fecfef,#ffecd2);
+  color:#e91e63;
+  font-size:22px;
+  font-weight:bold;
+  text-align:center;
+  border-radius:15px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.2);
+  z-index:10;
+}
+
+.buttons {
+  margin-top:15px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+
+button {
+  padding:10px 15px;
+  border:none;
+  border-radius:20px;
+  background:#e91e63;
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+button:hover {
+  background:#c2185b;
+}
+
+.back-btn {
+  margin-top:20px;
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+<!-- 💕 Floating Hearts Background -->
+<div class="hearts" id="hearts"></div>
+
+<div class="container">
+  <h1>🧩 Photo Puzzle 🧩</h1>
+  <p class="subtitle">Upload your favorite pic 💕</p>
+
+  <div class="upload-area" id="uploadArea">
+    Click to Upload Image
+  </div>
+
+  <!-- Back button on main page -->
+  <div class="back-btn" id="mainBack">
+    <button id="backMainBtn">Back to presents</button>
+  </div>
+
+  <div class="puzzle-container" id="puzzleContainer">
+    <div class="puzzle-board" id="puzzleBoard">
+      <div class="complete-overlay" id="completeOverlay">
+        💖 U United Us 💖
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="shuffleBtn">🔀 Shuffle</button>
+      <button id="newBtn">✨ New Puzzle</button>
+    </div>
+
+    <div class="back-btn">
+      <button id="backBtn">Back to presents</button>
+    </div>
+  </div>
+</div>
+
+<script>
+class PhotoPuzzle {
+  constructor() {
+    this.image = null;
+    this.board = document.getElementById("puzzleBoard");
+    this.uploadArea = document.getElementById("uploadArea");
+    this.container = document.getElementById("puzzleContainer");
+    this.overlay = document.getElementById("completeOverlay");
+    this.pieces = [];
+    this.size = 3;
+    this.pieceSize = 106;
+    this.init();
+  }
+
+  init() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.style.display = "none";
+    document.body.appendChild(input);
+
+    this.uploadArea.addEventListener("click", () => input.click());
+
+    input.addEventListener("change", e => {
+      if (e.target.files.length) {
+        const reader = new FileReader();
+        reader.onload = event => {
+          this.image = event.target.result;
+          this.startPuzzle();
+        };
+        reader.readAsDataURL(e.target.files[0]);
+      }
+    });
+
+    document.getElementById("shuffleBtn").addEventListener("click", () => this.shuffle());
+    document.getElementById("newBtn").addEventListener("click", () => this.newPuzzle());
+
+    // Back buttons
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = "presents.html";
+    });
+
+    document.getElementById("backMainBtn").addEventListener("click", () => {
+      window.location.href = "presents.html";
+    });
+  }
+
+  startPuzzle() {
+    this.uploadArea.style.display = "none";
+    document.getElementById("mainBack").style.display = "none";
+    this.container.style.display = "block";
+    this.createPieces();
+  }
+
+  createPieces() {
+    this.board.querySelectorAll(".puzzle-piece").forEach(p => p.remove());
+    this.overlay.style.display = "none";
+    this.pieces = [];
+
+    let order = [...Array(9).keys()].sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < 9; i++) {
+      let piece = document.createElement("div");
+      piece.className = "puzzle-piece";
+      let correctIndex = order[i];
+      piece.dataset.correct = correctIndex;
+
+      let bgX = (correctIndex % 3) * this.pieceSize;
+      let bgY = Math.floor(correctIndex / 3) * this.pieceSize;
+
+      piece.style.backgroundImage = `url(${this.image})`;
+      piece.style.backgroundPosition = `-${bgX}px -${bgY}px`;
+
+      piece.style.left = (i % 3) * this.pieceSize + "px";
+      piece.style.top = Math.floor(i / 3) * this.pieceSize + "px";
+
+      piece.draggable = true;
+
+      piece.addEventListener("dragstart", () => this.dragged = piece);
+      piece.addEventListener("dragover", e => e.preventDefault());
+
+      piece.addEventListener("drop", () => {
+        if (!this.dragged || this.dragged === piece) return;
+
+        let tempLeft = this.dragged.style.left;
+        let tempTop = this.dragged.style.top;
+
+        this.dragged.style.left = piece.style.left;
+        this.dragged.style.top = piece.style.top;
+
+        piece.style.left = tempLeft;
+        piece.style.top = tempTop;
+
+        this.checkWin();
+      });
+
+      this.board.appendChild(piece);
+      this.pieces.push(piece);
+    }
+  }
+
+  shuffle() {
+    this.createPieces();
+  }
+
+  newPuzzle() {
+    location.reload();
+  }
+
+  checkWin() {
+    let correctCount = 0;
+    this.pieces.forEach(piece => {
+      let col = parseInt(piece.style.left) / this.pieceSize;
+      let row = parseInt(piece.style.top) / this.pieceSize;
+      let index = row * 3 + col;
+      if (index == piece.dataset.correct) correctCount++;
+    });
+
+    if (correctCount === 9) {
+      this.overlay.style.display = "flex";
+    }
+  }
+}
+
+// 💕 Floating hearts animation script
+function initializeHearts() {
+  const heartCount = 14;
+  const heartsDiv = document.getElementById('hearts');
+
+  for (let i = 0; i < heartCount; i++) {
+    const heart = document.createElement('div');
+    heart.classList.add('floating-heart');
+    heart.textContent = '♥';
+
+    let leftPercent = i < heartCount * 0.4 ? Math.random() * 45 : 55 + Math.random() * 40;
+    heart.style.left = `${leftPercent}%`;
+    heart.style.top = `${-20 + Math.random() * 40}vh`;
+    heart.style.animationDelay = `${Math.random() * 2.5}s`;
+    heart.style.animationDuration = `${4 + Math.random() * 2}s`;
+    heart.style.fontSize = `${1.7 + Math.random() * 1.6}em`;
+
+    heartsDiv.appendChild(heart);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  new PhotoPuzzle();
+  initializeHearts();
+});
+</script>
+
+</body>
+</html>
